@@ -1,0 +1,139 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:appTest.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             x:Class="appTest.Views.MainView"
+             x:DataType="vm:MainViewModel">
+  <Design.DataContext>
+    <!-- This only sets the DataContext for the previewer in an IDE,
+         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <vm:MainViewModel />
+  </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+       
+        <Menu Grid.Row="0" Height="25" VerticalAlignment="Top">
+            <MenuItem Header="File">
+                <MenuItem Header="New Project" ></MenuItem>
+                <MenuItem Header="Open Project" >
+                    <MenuItem Header="WinForms"></MenuItem>
+                    <MenuItem Header="WPF" ></MenuItem>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="Exit" ></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Edit" ></MenuItem>
+            <MenuItem Header="View" ></MenuItem>
+        </Menu>
+        
+      
+        <TabControl Grid.Row="1" x:Name="termTabs" SelectedIndex="0">
+            <TabItem x:Name="mainConsole">
+                <TabItem.Header>
+                    <TextBlock Margin="3">Console</TextBlock>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Border BorderThickness="1"
+                                BorderBrush="Gray"
+                                CornerRadius="4"
+                                Margin="1">
+                            <ScrollViewer x:Name="mainConcoleScroll"
+                                          VerticalScrollBarVisibility="Visible"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          AllowAutoHide="False">
+                                <TextBox Text="{Binding ConsoleBuffer}"
+                                         BorderThickness="0"
+                                         IsReadOnly="True"
+                                         CaretBrush="Transparent"
+                                         BorderBrush="Transparent"
+                                         Watermark="Console"
+                                         Focusable="False"
+                                         TextWrapping="Wrap"
+                                         VerticalAlignment="Stretch"
+                                         MinWidth="0"
+                                         CornerRadius="0"
+                                         Padding="2,2,18,2"/>
+                            </ScrollViewer>
+                        </Border>
+                        
+                        <Grid Grid.Row="1" Margin="0,2,0,2" VerticalAlignment="Bottom">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding sendString, Mode=TwoWay}" 
+                                     HorizontalAlignment="Stretch"
+                                     Watermark="/kill yourself"
+                                     CornerRadius="4"
+                                     Margin="1"
+                                     BorderBrush="Gray"
+                                     Padding="6"/>
+                            <Button Grid.Column="1" Content="Send" Command="{Binding buttonSend}" HorizontalAlignment="Right"/>
+                            <Button Grid.Column="2" Content="Connect" Command="{Binding buttonConnect}" HorizontalAlignment="Right"/>
+                            <Button Grid.Column="3" Content="Clear" Command="{Binding buttonClear}" HorizontalAlignment="Right"/>
+                            <Button Grid.Column="4" Content="Down" Command="{Binding buttonDown}" HorizontalAlignment="Right"/>
+                            <Button Grid.Column="5" Content="Disc" Command="{Binding buttonDisconnect}" HorizontalAlignment="Right"/>
+                        </Grid>
+                        
+                    </Grid>
+                    
+                </TabItem.Content>
+            </TabItem>
+            <TabItem x:Name="parametersList">
+                <TabItem.Header>
+                    <TextBlock Margin="3">Parameters</TextBlock>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <StackPanel>
+                        
+                        <Border Margin="5"
+                                CornerRadius="10"
+                                Background="LightBlue">
+                            <TextBlock Margin="5"
+                               FontSize="24"
+                               HorizontalAlignment="Center"
+                               Text="Temperature Converter">
+                            </TextBlock>
+                        </Border>
+                    
+                        <Grid ShowGridLines="False"  Margin="5"
+                                ColumnDefinitions="120, 100"
+                                RowDefinitions="Auto, Auto, Auto">
+                            <Label Grid.Row="0" Grid.Column="0" Margin="10">Celsius</Label>
+                            <TextBox Grid.Row="0" Grid.Column="1" Margin="0 5" Text="{Binding Celsius, Mode=TwoWay}"/>
+                            <Label Grid.Row="1" Grid.Column="0" Margin="10">Fahrenheit</Label>
+                            <TextBox Grid.Row="1"  Grid.Column="1" Margin="0 5" Text="{Binding Fahrenheit, Mode=TwoWay}"/>
+                            <Button Grid.Row="2" Grid.Column="1" Margin="0 5" Command="{Binding PerformAction}">Calculate</Button>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Margin="100,0,0,0">
+                            <Button Content="-" Command="{Binding buttonMinus}"/>
+                            <TextBox Text="{Binding Fahrenheit, Mode=TwoWay}"/>
+                            <Button Content="+" Command="{Binding buttonPlus}"/>
+                        </StackPanel>
+                        
+                    </StackPanel>
+                </TabItem.Content> 
+            </TabItem>
+        </TabControl>
+        
+
+    </Grid>
+    
+</UserControl>
