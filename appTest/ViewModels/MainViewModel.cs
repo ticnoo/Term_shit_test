@@ -1,18 +1,103 @@
 ﻿using System.Diagnostics;
 using System;
-using Avalonia.Threading;
 using System.ComponentModel;
 using System.Xml.Linq;
 using System.Diagnostics.Metrics;
-using Avalonia.Controls;
-
 using System.IO.Ports;
 using appTest.Views;
+using System.Collections.Generic;
+using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Net.Mime.MediaTypeNames;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using System.Linq;
+using System.Globalization;
+
+using Avalonia.Input;
+using Avalonia.Threading;
+using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
+using Avalonia.Controls.ApplicationLifetimes;
+
+using appTest.Core.toolsUI;
+using appTest.Core.Settings;
 
 namespace appTest.ViewModels;
 
+public struct BufferLineCounter
+{
+    public string Text { get; set; }
+    public int LineCounter { get; set; }
+}
+
 public class MainViewModel : INotifyPropertyChanged
 {
+
+    ////////////////// test
+
+    private BufferLineCounter testNewBuffer = new BufferLineCounter
+    {
+        Text = "\u001b[31mRed text\u001b[0m",
+        LineCounter = 10
+    };
+    public BufferLineCounter TestNewBuffer
+    {
+        get { return testNewBuffer; }
+        set
+        {
+            testNewBuffer = value;
+            OnPropertyChanged(nameof(TestNewBuffer));
+        }
+    }
+
+    ////////////////// 
+    ////////////////// settings class
+
+    private AzulaSettings Settings = new AzulaSettings();
+
+    public void OpenSettingsWindow(object msg)
+    {
+        AddMainConsole("setting menu was pressed\n");
+        AddMainConsole("its not working now, nothing rly happening\n");
+        //SettingsWindow settingsWindow = new SettingsWindow()
+        //{
+        //    DataContext = new SettingsViewModel()
+        //};
+    }
+
+    ////////////////// com port connection
+
+    private object isConnectedColor = Color.Parse("red");
+    public object IsConnectedColor
+    {
+        get { return isConnectedColor; }
+        set
+        {
+            isConnectedColor = value;
+            OnPropertyChanged(nameof(IsConnectedColor));    
+        }
+    }
+
+    private bool isConnected = false;
+    public bool IsConnected
+    {
+        get { return isConnected; }
+        set
+        {
+            isConnected = value;
+            if (value)
+            {
+                IsConnectedColor = Color.Parse("green");
+            }
+            else
+            {
+                IsConnectedColor = Color.Parse("red");
+            }
+        }
+    }
+
     SerialPort serialPort = new SerialPort(
                 portName: "COM8",
                 baudRate: 115200,
@@ -21,6 +106,9 @@ public class MainViewModel : INotifyPropertyChanged
                 stopBits: StopBits.One
             );
 
+    //////////////////
+    ////////////////// Buttons
+
     public void buttonConnect(object msg)
     {
         if (!serialPort.IsOpen)
@@ -28,16 +116,34 @@ public class MainViewModel : INotifyPropertyChanged
             try
             {
                 serialPort.Open();
-                ConsoleBuffer += "opened\n";
+                AddMainConsole("opened\n");
+                IsConnected = true;
                 serialPort.DataReceived += (sender, e) =>
                 {
-                    ConsoleBuffer += serialPort.ReadExisting();
+                    string data = serialPort.ReadExisting();
+                    data = data.Replace("\0", "");
+                    AddMainConsole(data);
+
+                    //if (data.Contains("Message"))
+                    //{
+                    //    AddMessage(data);
+                    //    // AddMainConsole(data);
+                    //} 
+                    //else
+                    //{
+                    //    AddMainConsole(data);
+                    //    // AddHistoryConsole(data);
+                    //}
                 };
             }
             catch
             {
-                ConsoleBuffer += "error open\n";
+                AddMainConsole("error open\n");
             }
+        }
+        else
+        {
+            AddMainConsole("serial port is open\n");
         }
     }
 
@@ -46,135 +152,271 @@ public class MainViewModel : INotifyPropertyChanged
         if (serialPort.IsOpen)
         {
             serialPort.Close();
-            ConsoleBuffer += "port closed\n";
+            
+            AddMainConsole("port closed\n");
+            // MainConsoleBuffer += "port closed\n";
+            IsConnected = false;
         } 
         else
         {
-            ConsoleBuffer += "port is not open\n";
+            AddMainConsole("port is not open\n");
+            // MainConsoleBuffer += "port is not open\n";
         }
     }
 
     public void buttonClear(object msg)
     {
-        ConsoleBuffer = "";
+        MainConsoleBuffer = "";
+        MessengerConsoleCollectionBuffer.Clear();
+        HistoryMainConsoleCollectionBuffer.Clear();
     }
 
-    bool buttonDownPressed = false;
     public void buttonDown(object msg)
     {
-        buttonDownPressed = true;
-    }
-
-    private string _ConsoleBuffer = "start\nvery long test string >>--<< >>--<< >>--<< >>--<< >>--<< >>--<< >>--<< >>--<< >>--<<";
-    public string ConsoleBuffer
-    {
-        get { return _ConsoleBuffer; }
-        set 
-        { 
-            _ConsoleBuffer = value;
-            OnPropertyChanged(nameof(ConsoleBuffer));
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                double current_offset = MainConcoleScroll.Offset.Y;
-                double current_extent = MainConcoleScroll.ScrollBarMaximum.Y - 20;
-                if (buttonDownPressed)
-                {
-                    current_extent = 0;
-                    buttonDownPressed = false;
-                }
-                if (current_offset > current_extent)
-                {
-                    MainConcoleScroll?.ScrollToEnd();
-                }
-            });
-
-            
+        // buttonDownPressed = true;
+        switch (MainTabs.SelectedIndex)
+        {
+            case 1:
+                toolsUI.MoveScrollToEnd(MainConsoleScroll);
+                break;
+            case 2:
+                toolsUI.MoveScrollToEnd(MessengerConsoleScroll);
+                break;
+            case 3:
+                toolsUI.MoveScrollToEnd(HistoryMainConsoleScroll);
+                break;
+            default:
+                return;
         }
     }
 
+    //////////////////
+    ////////////////// Tab
 
-
-    private ScrollViewer mainConcoleScroll;
-    public ScrollViewer MainConcoleScroll
+    private TabControl mainTabs;
+    public TabControl MainTabs
     {
-        get { return mainConcoleScroll; }
+        get { return mainTabs; }
         set
         {
-            if (mainConcoleScroll != value)
+            if (mainTabs != value)
             {
-                mainConcoleScroll = value;
-                OnPropertyChanged(nameof(MainConcoleScroll));
+                mainTabs = value;
+                OnPropertyChanged(nameof(MainTabs));
             }
         }
     }
 
-    public void textChangedTest(object msg)
-    {
-        Celsius++;
-    }
+    ////////////////// 
+    ////////////////// Main Console
 
-    private int _Celsius = 10;
-    public int Celsius
+    //private const int MainConsoleScrollPixelLock = 200;
+    private string mainConsoleBuffer = "";
+    public string MainConsoleBuffer
     {
-        get { return _Celsius; }
-        set
+        get { return mainConsoleBuffer; }
+        set 
         {
-            _Celsius = value;
-            _Fahrenheit = _Celsius * 2;
-            OnPropertyChanged(nameof(Celsius));
-            OnPropertyChanged(nameof(Fahrenheit));
+            // double test = MainConsoleScroll.ScrollBarMaximum.Y;
+            mainConsoleBuffer = value;
+            OnPropertyChanged(nameof(MainConsoleBuffer));
+            //MoveScrollToEnd(MainConsoleScroll, MainConsoleScrollPixelLock);
+            //toolsUI.MoveScrollToEnd(MainConsoleScroll, test);
         }
     }
 
-    private int _Fahrenheit = 80;
-    public int Fahrenheit
+    private ScrollViewer mainConsoleScroll;
+    public ScrollViewer MainConsoleScroll
     {
-        get { return _Fahrenheit; }
+        get { return mainConsoleScroll; }
         set
         {
-            _Fahrenheit = value;
-            _Celsius = _Fahrenheit / 2;
-            OnPropertyChanged(nameof(Fahrenheit));
-            OnPropertyChanged(nameof(Celsius));
+            if (mainConsoleScroll != value)
+            {
+                mainConsoleScroll = value;
+                OnPropertyChanged(nameof(MainConsoleScroll));
+            }
         }
     }
 
-    public void PerformAction(object msg)
+    private void AddMainConsole(string data)
     {
-        Debug.WriteLine("The action was called. Celsius {0}, Fahrenheit {1}", this.Celsius, this.Fahrenheit);
+        //int LineCount = MainConsoleBuffer.Split('\n').Length;
+        double prevScrollPosition = MainConsoleScroll.ScrollBarMaximum.Y;
+        string[] lines = MainConsoleBuffer.Split('\n');
+
+        //if (MainConsoleBuffer.Length > MaxBufferLenght)
+        if (lines.Length > Settings.MainConsole.MaxBufferLines)
+        {
+            //string dataToHistory = MainConsoleBuffer.Substring(0, HistoryBufferCut);
+            //MainConsoleBuffer = MainConsoleBuffer.Remove(0, HistoryBufferCut);
+            //string[] parts = MainConsoleBuffer.Split('\n', 2);
+            //dataToHistory += parts[0];
+            //MainConsoleBuffer = MainConsoleBuffer.Substring(parts[0].Length + 1);
+            //MainConsoleBuffer += data;
+            //MainConsoleHistoryAdd(dataToHistory);
+
+            int totalCutLength = lines.Take(Settings.MainConsole.HistoryBufferLinesCutCount).Sum(s => s.Length);
+            string dataToHistory = MainConsoleBuffer.Substring(0, totalCutLength + Settings.MainConsole.HistoryBufferLinesCutCount);
+            MainConsoleBuffer = MainConsoleBuffer.Substring(totalCutLength + Settings.MainConsole.HistoryBufferLinesCutCount);
+            MainConsoleBuffer += data;
+            // MainConsoleHistoryAdd(dataToHistory);
+            AddHistoryConsole(dataToHistory);
+        }
+        else
+        {         
+            MainConsoleBuffer += data;
+        }
+        toolsUI.MoveScrollToEnd(MainConsoleScroll, prevScrollPosition);
     }
 
-    public void buttonPlus(object msg)
+    ////////////////// 
+    ////////////////// Messenger
+
+    public struct Message
     {
-        Fahrenheit++;
+        public string Text { get; set; }
+        public DateTime Time { get; set; }
     }
 
-    public void buttonMinus(object msg)
+    private ObservableCollection<Message> messengerConsoleCollectionBuffer = new ObservableCollection<Message>();
+    public ObservableCollection<Message> MessengerConsoleCollectionBuffer
     {
-        Fahrenheit--;
-    }
-
-    public string _sendString { get; set; } = "";
-    public string sendString
-    {
-        get { return _sendString; }
+        get { return messengerConsoleCollectionBuffer; }
         set
         {
-            _sendString = value;
-            OnPropertyChanged(nameof(sendString));
+            messengerConsoleCollectionBuffer = value;
+            OnPropertyChanged(nameof(MessengerConsoleCollectionBuffer));
         }
     }
+
+    private ScrollViewer messengerConsoleScroll;
+    public ScrollViewer MessengerConsoleScroll
+    {
+        get { return messengerConsoleScroll; }
+        set
+        {
+            if (messengerConsoleScroll != value)
+            {
+                messengerConsoleScroll = value;
+                OnPropertyChanged(nameof(MessengerConsoleScroll));
+            }
+        }
+    }
+
+    public void AddMessage(string text)
+    {
+        var message = new Message
+        {
+            Text = text,
+            Time = DateTime.Now
+        };
+        MessengerConsoleCollectionBuffer.Add(message);
+        toolsUI.MoveScrollToEnd(MessengerConsoleScroll, 100);
+        //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+        //{
+        //    double current_offset = MessengerConsoleScroll.Offset.Y;
+        //    double current_extent = MessengerConsoleScroll.ScrollBarMaximum.Y - 100;
+        //    if (buttonDownPressed)
+        //    {
+        //        current_extent = 0;
+        //        buttonDownPressed = false;
+        //    }
+        //    if (current_offset > current_extent)
+        //    {
+        //        MessengerConsoleScroll?.ScrollToEnd();
+        //    }
+        //});
+    }
+
+    //////////////////
+    ////////////////// History console
+
+    private ObservableCollection<string> historyMainConsoleCollectionBuffer = new ObservableCollection<string>() { "" };
+    public ObservableCollection<string> HistoryMainConsoleCollectionBuffer
+    {
+        get { return historyMainConsoleCollectionBuffer; }
+        set
+        {
+            historyMainConsoleCollectionBuffer = value;
+            OnPropertyChanged(nameof(HistoryMainConsoleCollectionBuffer));
+        }
+    }
+
+    private ScrollViewer historyMainConsoleScroll;
+    public ScrollViewer HistoryMainConsoleScroll
+    {
+        get { return historyMainConsoleScroll; }
+        set
+        {
+            if (historyMainConsoleScroll != value)
+            {
+                historyMainConsoleScroll = value;
+                OnPropertyChanged(nameof(HistoryMainConsoleScroll));
+            }
+        }
+    }
+
+    private void AddHistoryConsole(string data)
+    {
+        double prevScrollPosition = HistoryMainConsoleScroll.ScrollBarMaximum.Y;
+        int lastIndex = HistoryMainConsoleCollectionBuffer.Count;
+        if (lastIndex == 0)
+        {
+            HistoryMainConsoleCollectionBuffer.Add(data);
+            return;
+        }
+
+        lastIndex--;
+        // int lastIndex = HistoryMainConsoleCollectionBuffer.Count - 1;
+        int lineCount = HistoryMainConsoleCollectionBuffer[lastIndex].Split('\n').Length;
+
+        if (lineCount > ((Settings.MainConsole.HistoryBufferLinesCutCount *3)-1) && data.Contains('\n')) 
+        {
+            string[] parts = data.Split('\n', 2);
+            HistoryMainConsoleCollectionBuffer[lastIndex] += parts[0]; // + "\nend this block -----------------------------";
+            // HistoryMainConsoleCollectionBuffer.Add("starting new block\n");
+            // HistoryMainConsoleCollectionBuffer[lastIndex+1] += parts[1];
+            HistoryMainConsoleCollectionBuffer.Add(parts[1]);
+        }
+        else
+        {
+            HistoryMainConsoleCollectionBuffer[lastIndex] += data;
+        }
+        toolsUI.MoveScrollToEnd(HistoryMainConsoleScroll, prevScrollPosition);
+    }
+
+    //////////////////
+    ////////////////// Send button
+
+    // private const string nReplacer = "&&";
+    // private const string rReplacer = "";
+
+    private string sendButtonBuffer { get; set; } = "";
+    public string SendButtonBuffer
+    {
+        get { return sendButtonBuffer; }
+        set
+        {
+            // sendButtonBuffer = value.Replace('\n', ' ');
+            sendButtonBuffer = value;
+            sendButtonBuffer = sendButtonBuffer.Replace("\n", Settings.nReplacer).Replace("\r", Settings.rReplacer);
+            OnPropertyChanged(nameof(SendButtonBuffer));
+        }
+    }
+
     public void buttonSend(object msg)
     {
-        if ("" != sendString)
+        if ("" != SendButtonBuffer)
         {
-            ConsoleBuffer += sendString + '\n';
-            sendString = "";
+            AddMainConsole("---> " + SendButtonBuffer + '\n');
+            // MainConsoleBuffer += "---> " + SendButtonBuffer + '\n';
+            SendButtonBuffer = "";
         } 
         //else
         //{
-        //    ConsoleBuffer += "test\ntest\ntest\ntest\ntest\n";
-        //    sendString = "";
+        //    MainConsoleBuffer += "test\ntest\ntest\ntest\ntest\n";
+        //    SendButtonBuffer = "";
         //}
     }
 

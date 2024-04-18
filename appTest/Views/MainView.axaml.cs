@@ -1,6 +1,9 @@
 ﻿using appTest.ViewModels;
 using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using Avalonia.Input;
 using System;
+using System.Globalization;
 
 namespace appTest.Views;
 
@@ -17,8 +20,19 @@ public partial class MainView : UserControl
     {
         if (DataContext is MainViewModel viewModel)
         {
-            ScrollViewer scrollViewer = this.FindControl<ScrollViewer>("mainConcoleScroll");
-            viewModel.MainConcoleScroll = scrollViewer;
+            TabControl tabControl = this.FindControl<TabControl>("MainTabs");
+            viewModel.MainTabs = tabControl;
+
+            ScrollViewer scrollViewer = this.FindControl<ScrollViewer>("MainConsoleScroll");
+            viewModel.MainConsoleScroll = scrollViewer;
+            
+            scrollViewer = this.FindControl<ScrollViewer>("MessengerConsoleScroll");
+            viewModel.MessengerConsoleScroll = scrollViewer;
+
+            scrollViewer = this.FindControl<ScrollViewer>("historyMainConsoleScroll");
+            viewModel.HistoryMainConsoleScroll = scrollViewer;
+
+            viewModel.buttonConnect(null);
         }
     }
 }

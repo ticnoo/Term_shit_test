@@ -16,6 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
        
         <Menu Grid.Row="0" Height="25" VerticalAlignment="Top">
@@ -30,10 +31,25 @@
             </MenuItem>
             <MenuItem Header="Edit" ></MenuItem>
             <MenuItem Header="View" ></MenuItem>
+            <MenuItem Header="Settings" Command="{Binding OpenSettingsWindow}"></MenuItem>
         </Menu>
         
       
-        <TabControl Grid.Row="1" x:Name="termTabs" SelectedIndex="0">
+        <TabControl Grid.Row="1" x:Name="MainTabs" SelectedIndex="1">
+            
+            <TabItem x:Name="TestTab">
+                <TabItem.Header>
+                    <TextBlock Margin="3">TestTab</TextBlock>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <StackPanel>
+                        <TextBlock Text="{Binding TestNewBuffer.Text}"/>
+                        <TextBlock Text="asd"/>
+                        
+                    </StackPanel>
+                </TabItem.Content>
+            </TabItem>
+            
             <TabItem x:Name="mainConsole">
                 <TabItem.Header>
                     <TextBlock Margin="3">Console</TextBlock>
@@ -45,15 +61,17 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
 
+                        
+                        
                         <Border BorderThickness="1"
                                 BorderBrush="Gray"
                                 CornerRadius="4"
                                 Margin="1">
-                            <ScrollViewer x:Name="mainConcoleScroll"
+                            <ScrollViewer x:Name="MainConsoleScroll"
                                           VerticalScrollBarVisibility="Visible"
                                           HorizontalScrollBarVisibility="Disabled"
                                           AllowAutoHide="False">
-                                <TextBox Text="{Binding ConsoleBuffer}"
+                                <TextBox Text="{Binding MainConsoleBuffer}"
                                          BorderThickness="0"
                                          IsReadOnly="True"
                                          CaretBrush="Transparent"
@@ -64,10 +82,24 @@
                                          VerticalAlignment="Stretch"
                                          MinWidth="0"
                                          CornerRadius="0"
-                                         Padding="2,2,18,2"/>
+                                         Padding="2,2,18,2"
+                                         Margin="1"
+                                         FontFamily="Consolas">
+                                    <!--
+                                    <TextBox.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Copy"
+                                                      InputGesture="{x:Static TextBox.CopyGesture}"
+                                                      Command="{Binding $parent[TextBox].Copy}"  
+                                                      HotKey="Ctrl+A"/>
+                                        </ContextMenu>
+                                    </TextBox.ContextMenu>
+                                    -->
+                                </TextBox>
                             </ScrollViewer>
                         </Border>
-                        
+
+                        <!--
                         <Grid Grid.Row="1" Margin="0,2,0,2" VerticalAlignment="Bottom">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -77,7 +109,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Text="{Binding sendString, Mode=TwoWay}" 
+                            <TextBox Text="{Binding SendButtonBuffer, Mode=TwoWay}" 
                                      HorizontalAlignment="Stretch"
                                      Watermark="/kill yourself"
                                      CornerRadius="4"
@@ -90,48 +122,195 @@
                             <Button Grid.Column="4" Content="Down" Command="{Binding buttonDown}" HorizontalAlignment="Right"/>
                             <Button Grid.Column="5" Content="Disc" Command="{Binding buttonDisconnect}" HorizontalAlignment="Right"/>
                         </Grid>
+                        -->
                         
                     </Grid>
                     
                 </TabItem.Content>
             </TabItem>
-            <TabItem x:Name="parametersList">
+            <TabItem x:Name="tabMessenger">
                 <TabItem.Header>
-                    <TextBlock Margin="3">Parameters</TextBlock>
+                    <TextBlock Margin="3">Messenger</TextBlock>
                 </TabItem.Header>
                 <TabItem.Content>
-                    <StackPanel>
-                        
-                        <Border Margin="5"
-                                CornerRadius="10"
-                                Background="LightBlue">
-                            <TextBlock Margin="5"
-                               FontSize="24"
-                               HorizontalAlignment="Center"
-                               Text="Temperature Converter">
-                            </TextBlock>
-                        </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
                     
-                        <Grid ShowGridLines="False"  Margin="5"
-                                ColumnDefinitions="120, 100"
-                                RowDefinitions="Auto, Auto, Auto">
-                            <Label Grid.Row="0" Grid.Column="0" Margin="10">Celsius</Label>
-                            <TextBox Grid.Row="0" Grid.Column="1" Margin="0 5" Text="{Binding Celsius, Mode=TwoWay}"/>
-                            <Label Grid.Row="1" Grid.Column="0" Margin="10">Fahrenheit</Label>
-                            <TextBox Grid.Row="1"  Grid.Column="1" Margin="0 5" Text="{Binding Fahrenheit, Mode=TwoWay}"/>
-                            <Button Grid.Row="2" Grid.Column="1" Margin="0 5" Command="{Binding PerformAction}">Calculate</Button>
-                        </Grid>
+                        <Border Grid.Row="1" 
+                                BorderThickness="1"
+                                BorderBrush="Gray"
+                                CornerRadius="4"
+                                Margin="1">
+                            
+                            <ScrollViewer x:Name="MessengerConsoleScroll"
+                                          VerticalScrollBarVisibility="Visible"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          AllowAutoHide="False">
+                                
+                                <ListBox ItemsSource="{Binding MessengerConsoleCollectionBuffer}"
+                                         BorderThickness="0"
+                                         BorderBrush="Transparent"
+                                         Focusable="False"
+                                         VerticalAlignment="Stretch"
+                                         MinWidth="0"
+                                         CornerRadius="0"
+                                         Padding="0">
+                                    
+                                    <ListBox.Styles>
+                                        <Style Selector="ListBoxItem">
+                                            <Setter Property="Padding" Value="0"/>
+                                        </Style>
+                                    </ListBox.Styles>
+                                    
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid ColumnDefinitions="100, *">
+                                                
+                                                <TextBox Text="{Binding Time}"
+                                                         Grid.Column="0"
+                                                         BorderThickness="0"
+                                                         IsReadOnly="True"
+                                                         CaretBrush="Transparent"
+                                                         BorderBrush="Transparent"
+                                                         Watermark="Time"
+                                                         Focusable="False"
+                                                         TextWrapping="Wrap"
+                                                         VerticalAlignment="Stretch"
+                                                         MinWidth="0"
+                                                         CornerRadius="0"
+                                                         Padding="0"
+                                                         Margin="0"
+                                                         TextAlignment="End"/>
+                                                
+                                                <TextBox Text="{Binding Text}"
+                                                         Grid.Column="1"
+                                                         BorderThickness="0"
+                                                         IsReadOnly="True"
+                                                         CaretBrush="Transparent"
+                                                         BorderBrush="Transparent"
+                                                         Watermark="Message"
+                                                         Focusable="False"
+                                                         TextWrapping="Wrap"
+                                                         VerticalAlignment="Stretch"
+                                                         MinWidth="0"
+                                                         CornerRadius="0"
+                                                         Padding="0"
+                                                         Margin="0"/>
+                                                
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                    
+                                </ListBox>
 
-                        <StackPanel Orientation="Horizontal" Margin="100,0,0,0">
-                            <Button Content="-" Command="{Binding buttonMinus}"/>
-                            <TextBox Text="{Binding Fahrenheit, Mode=TwoWay}"/>
-                            <Button Content="+" Command="{Binding buttonPlus}"/>
-                        </StackPanel>
-                        
-                    </StackPanel>
+                            </ScrollViewer>
+                            
+                        </Border>
+
+                    </Grid>
                 </TabItem.Content> 
             </TabItem>
+            <TabItem x:Name="historyConsole">
+                <TabItem.Header>
+                    <TextBlock Margin="3">History Console</TextBlock>
+                </TabItem.Header>
+                <TabItem.Content>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Border BorderThickness="1"
+                                BorderBrush="Gray"
+                                CornerRadius="4"
+                                Margin="1">
+                            
+                            <ScrollViewer x:Name="historyMainConsoleScroll"
+                                          VerticalScrollBarVisibility="Visible"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          AllowAutoHide="False">
+                                
+                                <ItemsControl ItemsSource="{Binding HistoryMainConsoleCollectionBuffer}"
+                                              BorderThickness="0"
+                                              BorderBrush="Transparent"
+                                              Focusable="False"
+                                              VerticalAlignment="Stretch"
+                                              MinWidth="0"
+                                              CornerRadius="0"
+                                              Padding="0">
+                                    
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <SelectableTextBlock Text="{Binding}"
+                                                     Grid.Column="0"
+                                                     Focusable="False"
+                                                     TextWrapping="NoWrap"
+                                                     VerticalAlignment="Stretch"
+                                                     MinWidth="0"                                                        
+                                                     Padding="0"
+                                                     Margin="0"
+                                                     TextAlignment="Start"
+                                                     FontFamily="Consolas"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                    
+                                </ItemsControl>
+                                
+                            </ScrollViewer>
+                            
+                        </Border>
+                        
+                    </Grid>
+
+                </TabItem.Content>
+            </TabItem>
         </TabControl>
+
+        <Grid Grid.Row="2" Margin="12,2,12,2" VerticalAlignment="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding SendButtonBuffer, Mode=TwoWay}"
+                     HorizontalAlignment="Stretch"
+                     Watermark="/kill yourself"
+                     CornerRadius="4"
+                     Margin="1"
+                     BorderBrush="Gray"
+                     Padding="6"
+                     TextWrapping="NoWrap"
+                     AcceptsReturn="False"
+                     LineHeight="1"
+                     FontFamily="Consolas"/>
+            <Button Grid.Column="1" 
+                    Content="Send" 
+                    Command="{Binding buttonSend}" 
+                    HorizontalAlignment="Right"
+                    HotKey="Enter">
+   
+            </Button>
+            <Button Grid.Column="2" Height="" Content="Connect" Command="{Binding buttonConnect}" HorizontalAlignment="Right"/>
+            <Button Grid.Column="3" Content="Clear" Command="{Binding buttonClear}" HorizontalAlignment="Right"/>
+            <Button Grid.Column="4" Content="Down" Command="{Binding buttonDown}" HorizontalAlignment="Right"/>
+            <Button Grid.Column="5" Content="Disc" Command="{Binding buttonDisconnect}" HorizontalAlignment="Right"/>
+            <Ellipse Grid.Column="6" Width="25" Height="25"
+                     Margin="4" >
+                <Ellipse.Fill>
+                    <SolidColorBrush Color="{Binding IsConnectedColor}" />
+                </Ellipse.Fill>
+            </Ellipse>
+        </Grid>
         
 
     </Grid>
