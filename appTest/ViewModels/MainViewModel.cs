@@ -39,7 +39,7 @@ public class MainViewModel : INotifyPropertyChanged
 
     private BufferLineCounter testNewBuffer = new BufferLineCounter
     {
-        Text = "\u001b[31mRed text\u001b[0m",
+        Text = "test text, so can i do html? <b>asd</b>, no you can not dog",
         LineCounter = 10
     };
     public BufferLineCounter TestNewBuffer
