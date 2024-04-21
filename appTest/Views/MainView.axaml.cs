@@ -21,11 +21,12 @@ public partial class MainView : UserControl
         if (DataContext is MainViewModel viewModel)
         {
             TabControl tabControl = this.FindControl<TabControl>("MainTabs");
-            viewModel.MainTabs = tabControl;
+
+            viewModel.MainTabs = this.MainTabs; //tabControl;
 
             ScrollViewer scrollViewer = this.FindControl<ScrollViewer>("MainConsoleScroll");
             viewModel.MainConsoleScroll = scrollViewer;
-            
+
             scrollViewer = this.FindControl<ScrollViewer>("MessengerConsoleScroll");
             viewModel.MessengerConsoleScroll = scrollViewer;
 
@@ -35,4 +36,6 @@ public partial class MainView : UserControl
             viewModel.buttonConnect(null);
         }
     }
+
+    public string textOnMainWindow { get; set; } = "text on main window";
 }
