@@ -59,12 +59,11 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void OpenSettingsWindow(object msg)
     {
-        AddMainConsole("setting menu was pressed\n");
-        AddMainConsole("its not working now, nothing rly happening\n");
-        //SettingsWindow settingsWindow = new SettingsWindow()
-        //{
-        //    DataContext = new SettingsViewModel()
-        //};
+        SettingsWindow settingWindow = new SettingsWindow()
+        {
+            DataContext = new SettingsViewModel()
+        };
+        settingWindow.Show();
     }
 
     ////////////////// com port connection

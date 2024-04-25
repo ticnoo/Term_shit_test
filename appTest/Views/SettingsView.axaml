@@ -15,12 +15,14 @@
     <DockPanel>
         <Button DockPanel.Dock="Bottom"
                 HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Center">
-            Add Item
+                HorizontalContentAlignment="Center"
+				Command="{Binding AddItem}">
+            Set Text
         </Button>
         <StackPanel>
             <CheckBox Margin="4">Walk the dog</CheckBox>
             <CheckBox Margin="4">Buy some milk</CheckBox>
+			<TextBlock Text="{Binding TestString}"/>
         </StackPanel>
     </DockPanel>
     
