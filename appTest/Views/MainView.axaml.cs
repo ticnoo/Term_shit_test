@@ -33,7 +33,7 @@ public partial class MainView : UserControl
             scrollViewer = this.FindControl<ScrollViewer>("historyMainConsoleScroll");
             viewModel.HistoryMainConsoleScroll = scrollViewer;
 
-            viewModel.buttonConnect(null);
+            //viewModel.buttonConnect(null);
         }
     }
 

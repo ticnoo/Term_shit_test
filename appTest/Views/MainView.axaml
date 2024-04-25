@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:appTest.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              x:Class="appTest.Views.MainView"
              x:DataType="vm:MainViewModel">
 	
@@ -36,7 +36,7 @@
         </Menu>
         
       
-        <TabControl Grid.Row="1" x:Name="MainTabs" SelectedIndex="0">
+        <TabControl Grid.Row="1" x:Name="MainTabs" SelectedIndex="1">
             
             <TabItem x:Name="TestTab">
                 <TabItem.Header>
@@ -62,8 +62,6 @@
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-
-                        
                         
                         <Border BorderThickness="1"
                                 BorderBrush="Gray"
@@ -286,11 +284,12 @@
             </Grid.ColumnDefinitions>
             <TextBox Text="{Binding SendButtonBuffer, Mode=TwoWay}"
                      HorizontalAlignment="Stretch"
+					 VerticalContentAlignment="Bottom"
                      Watermark="/kill yourself"
                      CornerRadius="4"
                      Margin="1"
                      BorderBrush="Gray"
-                     Padding="6"
+                     Padding="4"
                      TextWrapping="NoWrap"
                      AcceptsReturn="False"
                      LineHeight="1"
