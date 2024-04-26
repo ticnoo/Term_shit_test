@@ -24,6 +24,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using appTest.Core.toolsUI;
 using appTest.Core.Settings;
 using ReactiveUI;
+using System.Threading.Tasks;
 
 namespace appTest.ViewModels;
 
@@ -35,9 +36,42 @@ public struct BufferLineCounter
 
 public class MainViewModel : ViewModelBase
 {
+    private async Task Spam()
+    {
+        long counter = 0;
+        while (true)
+        {
+            await Task.Delay(50);
+
+            this.AddMainConsole($"spam {counter}\n");
+            counter++;
+        }
+    }
+
+    private async Task MessageSpam()
+    {
+        long counter = 0;
+        bool fisrtTime = true;
+        await Task.Delay(1000);
+        while (true)
+        {
+            await Task.Delay(1000);
+            this.AddMessage($"Message:\nSome Text\nCounter: {counter}\n");
+            counter++;
+
+            if (fisrtTime)
+            {
+                this.SelectedTab = 2;
+                fisrtTime = false;
+            }
+        }
+    }
+
     public MainViewModel()
     {
-        this.buttonConnect(null);
+        //this.buttonConnect(null);
+        var spamTask = Spam();
+        var messageSpamTask = MessageSpam();
     }
 
     #region test
@@ -132,9 +166,9 @@ public class MainViewModel : ViewModelBase
                 {
                     string data = serialPort.ReadExisting();
                     data = data.Replace("\0", "");
-                    AddMainConsole(data);
+                    //AddMainConsole(data);
 
-                    /*
+                    
                     if (data.Contains("Message"))
                     {
                         AddMessage(data);
@@ -145,7 +179,7 @@ public class MainViewModel : ViewModelBase
                         AddMainConsole(data);
                         // AddHistoryConsole(data);
                     }
-                    */
+                    
                 };
             }
             catch
@@ -164,11 +198,11 @@ public class MainViewModel : ViewModelBase
         if (serialPort.IsOpen)
         {
             serialPort.Close();
-            
+
             AddMainConsole("port closed\n");
             // MainConsoleBuffer += "port closed\n";
             IsConnected = false;
-        } 
+        }
         else
         {
             AddMainConsole("port is not open\n");
@@ -186,7 +220,7 @@ public class MainViewModel : ViewModelBase
     public void buttonDown(object msg)
     {
         // buttonDownPressed = true;
-        switch (MainTabs.SelectedIndex)
+        switch (this.SelectedTab)
         {
             case 1:
                 toolsUI.MoveScrollToEnd(MainConsoleScroll);
@@ -206,20 +240,19 @@ public class MainViewModel : ViewModelBase
 
     #region Tab
 
-    private TabControl mainTabs;
-    public TabControl MainTabs
+    private int selectedTab = 1;
+    public int SelectedTab
     {
-        get { return mainTabs; }
-        set
-        {
-            if (mainTabs != value)
-            {
-                //mainTabs = value;
-                //OnPropertyChanged(nameof(MainTabs));
-                this.RaiseAndSetIfChanged(ref mainTabs, value);
-            }
-        }
+        get => selectedTab;
+        set => this.RaiseAndSetIfChanged(ref selectedTab, value);
     }
+
+    //private TabControl mainTabs;
+    //public TabControl MainTabs
+    //{
+    //    get => mainTabs;
+    //    set => this.RaiseAndSetIfChanged(ref mainTabs, value);
+    //}
 
     #endregion
 
@@ -314,22 +347,25 @@ public class MainViewModel : ViewModelBase
             Text = text,
             Time = DateTime.Now
         };
+        double prevScrollPosition = MessengerConsoleScroll.ScrollBarMaximum.Y;
         MessengerConsoleCollectionBuffer.Add(message);
-        toolsUI.MoveScrollToEnd(MessengerConsoleScroll, 100);
-        //Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-        //{
-        //    double current_offset = MessengerConsoleScroll.Offset.Y;
-        //    double current_extent = MessengerConsoleScroll.ScrollBarMaximum.Y - 100;
-        //    if (buttonDownPressed)
-        //    {
-        //        current_extent = 0;
-        //        buttonDownPressed = false;
-        //    }
-        //    if (current_offset > current_extent)
-        //    {
-        //        MessengerConsoleScroll?.ScrollToEnd();
-        //    }
-        //});
+        toolsUI.MoveScrollToEnd(MessengerConsoleScroll, prevScrollPosition);
+        /*
+        Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            double current_offset = MessengerConsoleScroll.Offset.Y;
+            double current_extent = MessengerConsoleScroll.ScrollBarMaximum.Y - 100;
+            if (buttonDownPressed)
+            {
+                current_extent = 0;
+                buttonDownPressed = false;
+            }
+            if (current_offset > current_extent)
+            {
+                MessengerConsoleScroll?.ScrollToEnd();
+            }
+        });
+        */
     }
 
     #endregion

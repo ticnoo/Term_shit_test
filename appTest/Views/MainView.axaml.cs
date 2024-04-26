@@ -20,20 +20,26 @@ public partial class MainView : UserControl
     {
         if (DataContext is MainViewModel viewModel)
         {
+            /*
             TabControl tabControl = this.FindControl<TabControl>("MainTabs");
-
-            viewModel.MainTabs = this.MainTabs; //tabControl;
+            viewModel.MainTabs = tabControl;
+            viewModel.MainTabs = this.MainTabs;
 
             ScrollViewer scrollViewer = this.FindControl<ScrollViewer>("MainConsoleScroll");
             viewModel.MainConsoleScroll = scrollViewer;
-
+            
             scrollViewer = this.FindControl<ScrollViewer>("MessengerConsoleScroll");
             viewModel.MessengerConsoleScroll = scrollViewer;
-
-            scrollViewer = this.FindControl<ScrollViewer>("historyMainConsoleScroll");
+            
+            scrollViewer = this.FindControl<ScrollViewer>("HistoryMainConsoleScroll");
             viewModel.HistoryMainConsoleScroll = scrollViewer;
+            */
 
-            //viewModel.buttonConnect(null);
+            viewModel.MainConsoleScroll = this.MainConsoleScroll;
+            viewModel.MessengerConsoleScroll = this.MessengerConsoleScroll;
+            viewModel.HistoryMainConsoleScroll = this.HistoryMainConsoleScroll;
+
+            viewModel.buttonConnect(null);
         }
     }
 
