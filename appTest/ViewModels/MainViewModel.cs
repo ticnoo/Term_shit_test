@@ -23,6 +23,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 
 using appTest.Core.toolsUI;
 using appTest.Core.Settings;
+using ReactiveUI;
 
 namespace appTest.ViewModels;
 
@@ -32,10 +33,14 @@ public struct BufferLineCounter
     public int LineCounter { get; set; }
 }
 
-public class MainViewModel : INotifyPropertyChanged
+public class MainViewModel : ViewModelBase
 {
+    public MainViewModel()
+    {
+        this.buttonConnect(null);
+    }
 
-    ////////////////// test
+    #region test
 
     private BufferLineCounter testNewBuffer = new BufferLineCounter
     {
@@ -47,13 +52,15 @@ public class MainViewModel : INotifyPropertyChanged
         get { return testNewBuffer; }
         set
         {
-            testNewBuffer = value;
-            OnPropertyChanged(nameof(TestNewBuffer));
+            //testNewBuffer = value;
+            //OnPropertyChanged(nameof(TestNewBuffer));
+            this.RaiseAndSetIfChanged(ref testNewBuffer, value);
         }
     }
 
-    ////////////////// 
-    ////////////////// settings class
+    #endregion
+
+    #region settings class
 
     private AzulaSettings Settings = new AzulaSettings();
 
@@ -66,7 +73,9 @@ public class MainViewModel : INotifyPropertyChanged
         settingWindow.Show();
     }
 
-    ////////////////// com port connection
+    #endregion
+
+    #region com port connection
 
     private object isConnectedColor = Color.Parse("red");
     public object IsConnectedColor
@@ -74,8 +83,9 @@ public class MainViewModel : INotifyPropertyChanged
         get { return isConnectedColor; }
         set
         {
-            isConnectedColor = value;
-            OnPropertyChanged(nameof(IsConnectedColor));    
+            //isConnectedColor = value;
+            //OnPropertyChanged(nameof(IsConnectedColor));
+            this.RaiseAndSetIfChanged(ref isConnectedColor, value);
         }
     }
 
@@ -98,15 +108,16 @@ public class MainViewModel : INotifyPropertyChanged
     }
 
     SerialPort serialPort = new SerialPort(
-                portName: "COM8",
+                portName: "COM18",
                 baudRate: 115200,
                 parity: Parity.None,
                 dataBits: 8,
                 stopBits: StopBits.One
             );
 
-    //////////////////
-    ////////////////// Buttons
+    #endregion
+
+    #region Buttons
 
     public void buttonConnect(object msg)
     {
@@ -123,16 +134,18 @@ public class MainViewModel : INotifyPropertyChanged
                     data = data.Replace("\0", "");
                     AddMainConsole(data);
 
-                    //if (data.Contains("Message"))
-                    //{
-                    //    AddMessage(data);
-                    //    // AddMainConsole(data);
-                    //} 
-                    //else
-                    //{
-                    //    AddMainConsole(data);
-                    //    // AddHistoryConsole(data);
-                    //}
+                    /*
+                    if (data.Contains("Message"))
+                    {
+                        AddMessage(data);
+                        // AddMainConsole(data);
+                    }
+                    else
+                    {
+                        AddMainConsole(data);
+                        // AddHistoryConsole(data);
+                    }
+                    */
                 };
             }
             catch
@@ -142,7 +155,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
         else
         {
-            AddMainConsole("serial port is open\n");
+            AddMainConsole("serial port is alredy open\n");
         }
     }
 
@@ -189,8 +202,9 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    //////////////////
-    ////////////////// Tab
+    #endregion
+
+    #region Tab
 
     private TabControl mainTabs;
     public TabControl MainTabs
@@ -200,42 +214,29 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (mainTabs != value)
             {
-                mainTabs = value;
-                OnPropertyChanged(nameof(MainTabs));
+                //mainTabs = value;
+                //OnPropertyChanged(nameof(MainTabs));
+                this.RaiseAndSetIfChanged(ref mainTabs, value);
             }
         }
     }
 
-    ////////////////// 
-    ////////////////// Main Console
+    #endregion
 
-    //private const int MainConsoleScrollPixelLock = 200;
+    #region Main Console
+
     private string mainConsoleBuffer = "";
     public string MainConsoleBuffer
     {
-        get { return mainConsoleBuffer; }
-        set 
-        {
-            // double test = MainConsoleScroll.ScrollBarMaximum.Y;
-            mainConsoleBuffer = value;
-            OnPropertyChanged(nameof(MainConsoleBuffer));
-            //MoveScrollToEnd(MainConsoleScroll, MainConsoleScrollPixelLock);
-            //toolsUI.MoveScrollToEnd(MainConsoleScroll, test);
-        }
+        get => mainConsoleBuffer;
+        set => this.RaiseAndSetIfChanged(ref mainConsoleBuffer, value);
     }
 
     private ScrollViewer mainConsoleScroll;
     public ScrollViewer MainConsoleScroll
     {
-        get { return mainConsoleScroll; }
-        set
-        {
-            if (mainConsoleScroll != value)
-            {
-                mainConsoleScroll = value;
-                OnPropertyChanged(nameof(MainConsoleScroll));
-            }
-        }
+        get => mainConsoleScroll;
+        set => this.RaiseAndSetIfChanged(ref mainConsoleScroll, value);
     }
 
     private void AddMainConsole(string data)
@@ -269,8 +270,9 @@ public class MainViewModel : INotifyPropertyChanged
         toolsUI.MoveScrollToEnd(MainConsoleScroll, prevScrollPosition);
     }
 
-    ////////////////// 
-    ////////////////// Messenger
+    #endregion
+
+    #region Messenger
 
     public struct Message
     {
@@ -284,8 +286,9 @@ public class MainViewModel : INotifyPropertyChanged
         get { return messengerConsoleCollectionBuffer; }
         set
         {
-            messengerConsoleCollectionBuffer = value;
-            OnPropertyChanged(nameof(MessengerConsoleCollectionBuffer));
+            //messengerConsoleCollectionBuffer = value;
+            //OnPropertyChanged(nameof(MessengerConsoleCollectionBuffer));
+            this.RaiseAndSetIfChanged(ref messengerConsoleCollectionBuffer, value);
         }
     }
 
@@ -297,8 +300,9 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (messengerConsoleScroll != value)
             {
-                messengerConsoleScroll = value;
-                OnPropertyChanged(nameof(MessengerConsoleScroll));
+                //messengerConsoleScroll = value;
+                //OnPropertyChanged(nameof(MessengerConsoleScroll));
+                this.RaiseAndSetIfChanged(ref messengerConsoleScroll, value);
             }
         }
     }
@@ -328,8 +332,9 @@ public class MainViewModel : INotifyPropertyChanged
         //});
     }
 
-    //////////////////
-    ////////////////// History console
+    #endregion
+
+    #region History console
 
     private ObservableCollection<string> historyMainConsoleCollectionBuffer = new ObservableCollection<string>() { "" };
     public ObservableCollection<string> HistoryMainConsoleCollectionBuffer
@@ -337,8 +342,9 @@ public class MainViewModel : INotifyPropertyChanged
         get { return historyMainConsoleCollectionBuffer; }
         set
         {
-            historyMainConsoleCollectionBuffer = value;
-            OnPropertyChanged(nameof(HistoryMainConsoleCollectionBuffer));
+            //historyMainConsoleCollectionBuffer = value;
+            //OnPropertyChanged(nameof(HistoryMainConsoleCollectionBuffer));
+            this.RaiseAndSetIfChanged(ref historyMainConsoleCollectionBuffer, value);
         }
     }
 
@@ -350,8 +356,9 @@ public class MainViewModel : INotifyPropertyChanged
         {
             if (historyMainConsoleScroll != value)
             {
-                historyMainConsoleScroll = value;
-                OnPropertyChanged(nameof(HistoryMainConsoleScroll));
+                //historyMainConsoleScroll = value;
+                //OnPropertyChanged(nameof(HistoryMainConsoleScroll));
+                this.RaiseAndSetIfChanged(ref historyMainConsoleScroll, value);
             }
         }
     }
@@ -385,22 +392,20 @@ public class MainViewModel : INotifyPropertyChanged
         toolsUI.MoveScrollToEnd(HistoryMainConsoleScroll, prevScrollPosition);
     }
 
-    //////////////////
-    ////////////////// Send button
+    #endregion
 
-    // private const string nReplacer = "&&";
-    // private const string rReplacer = "";
+    #region Send button
 
-    private string sendButtonBuffer { get; set; } = "";
+    private string sendButtonBuffer = "";
     public string SendButtonBuffer
     {
-        get { return sendButtonBuffer; }
+        get => sendButtonBuffer;
         set
         {
-            // sendButtonBuffer = value.Replace('\n', ' ');
-            sendButtonBuffer = value;
-            sendButtonBuffer = sendButtonBuffer.Replace("\n", Settings.nReplacer).Replace("\r", Settings.rReplacer);
-            OnPropertyChanged(nameof(SendButtonBuffer));
+            //sendButtonBuffer = value;
+            value = value.Replace("\n", Settings.nReplacer).Replace("\r", Settings.rReplacer);
+            //OnPropertyChanged(nameof(SendButtonBuffer));
+            this.RaiseAndSetIfChanged(ref sendButtonBuffer, value);
         }
     }
 
@@ -419,9 +424,11 @@ public class MainViewModel : INotifyPropertyChanged
         //}
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    //public event PropertyChangedEventHandler PropertyChanged;
+    //protected virtual void OnPropertyChanged(string propertyName)
+    //{
+    //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    //}
+    
+    #endregion
 }
