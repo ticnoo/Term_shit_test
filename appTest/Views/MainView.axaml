@@ -36,7 +36,7 @@
         </Menu>
         
       
-        <TabControl Grid.Row="1" x:Name="MainTabs" SelectedIndex="1">
+        <TabControl Grid.Row="1" x:Name="MainTabs" SelectedIndex="{Binding SelectedTab, Mode=TwoWay}">
             
             <TabItem x:Name="TestTab">
                 <TabItem.Header>
@@ -227,7 +227,7 @@
                                 CornerRadius="4"
                                 Margin="1">
                             
-                            <ScrollViewer x:Name="historyMainConsoleScroll"
+                            <ScrollViewer x:Name="HistoryMainConsoleScroll"
                                           VerticalScrollBarVisibility="Visible"
                                           HorizontalScrollBarVisibility="Disabled"
                                           AllowAutoHide="False">
